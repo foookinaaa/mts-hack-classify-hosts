@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>MTS Hack</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We" crossorigin="anonymous">
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/modules/exporting.js"></script>
+    <script src="https://code.highcharts.com/modules/export-data.js"></script>
+    <script src="https://code.highcharts.com/modules/accessibility.js"></script>
+</head>
+<body>
+<div class="container">
+    <div class="text-center">
+        <h1>MTS Hack demo</h1>
+    </div>
+    <div class="alert alert-danger" id="alert"></div>
+    <div class="input-group mb-3">
+        <input
+                type="text"
+                class="form-control"
+                placeholder="Enter host here"
+                id="input"
+        >
+        <button
+                class="btn btn-outline-secondary"
+                type="button"
+                id="submit">Predict
+        </button>
+    </div>
+    <h2
+            class="text-center"
+    >predict = <span id="predict">-</span> (p=<span id="predict-proba">?</span>)</h2>
+    <div id="chart_container"></div>
+</div>
+<script type="text/javascript">
+    function drawFeatureImportance(featureImportance) {
+        Highcharts.chart('chart_container', {
+            chart: {
+                type: 'bar'
+            },
+            title: {
+                text: 'Feature importance'
+            },
+            yAxis: {
+                title: {
+                    text: 'Shap importance'
+                }
+            },
+            xAxis: {
+                categories: Object.keys(featureImportance),
+                crosshair: true
+            },
+            plotOptions: {
+                column: {
+                    pointPadding: 0.2,
+                    borderWidth: 0
+                }
+            },
+            series: [{
+                name: 'Shap importance',
+                data: Object.values(featureImportance)
+
+            }]
+        });
+    }
+
+    $(document).ready(function () {
+        $('#alert').hide();
+        $('#submit').click(function () {
+            $('#alert').hide();
+            $('#input').prop('disabled', true);
+            $('#submit').prop('disabled', true);
+            $.ajax({
+                method: 'POST',
+                url: '/predict',
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                data: JSON.stringify({
+                    'url': $('#input').val()
+                }),
+                success: function (resp) {
+                    $('#input').prop('disabled', false);
+                    $('#submit').prop('disabled', false);
+                    $('#predict').html(resp.predict);
+                    $('#predict-proba').html(resp.predicted_proba);
+                    drawFeatureImportance(resp.shap_feature_importance)
+                },
+                error: function (resp) {
+                    $('#alert').show();
+                    if (resp.status === 400) {
+                        $('#alert').text('Invalid host');
+                    } else {
+                        $('#alert').text(resp.statusText);
+                    }
+                    $('#input').prop('disabled', false);
+                    $('#submit').prop('disabled', false);
+                }
+            })
+        });
+    });
+
+
+</script>
+</body>
+</html>
