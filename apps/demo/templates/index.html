@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <title>MTS Hack</title>
@@ -32,7 +32,8 @@
     </div>
     <h2
             class="text-center"
-    >Это пользовательский сайт = <span id="predict">-</span> (вероятность, что хост пользовательский =<span id="predict-proba">?</span>)</h2>
+    >Это пользовательский сайт = <span id="predict">-</span> (вероятность, что хост пользовательский =<span
+            id="predict-proba">?</span>)</h2>
     <div id="chart_container"></div>
 </div>
 <script type="text/javascript">
@@ -67,12 +68,21 @@
         });
     }
 
+    function disableInput() {
+        $('#input').prop('disabled', true);
+        $('#submit').prop('disabled', true);
+    }
+
+    function enableInput() {
+        $('#input').prop('disabled', false);
+        $('#submit').prop('disabled', false);
+    }
+
     $(document).ready(function () {
         $('#alert').hide();
         $('#submit').click(function () {
             $('#alert').hide();
-            $('#input').prop('disabled', true);
-            $('#submit').prop('disabled', true);
+            disableInput();
             $.ajax({
                 method: 'POST',
                 url: '/predict',
@@ -82,27 +92,23 @@
                     'url': $('#input').val()
                 }),
                 success: function (resp) {
-                    $('#input').prop('disabled', false);
-                    $('#submit').prop('disabled', false);
+                    enableInput();
                     $('#predict').html(String(resp.predict));
                     $('#predict-proba').html(resp.predicted_proba);
                     drawFeatureImportance(resp.shap_feature_importance)
                 },
                 error: function (resp) {
-                    $('#alert').show();
+                    enableInput();
                     if (resp.status === 400) {
                         $('#alert').text('Invalid host');
                     } else {
                         $('#alert').text(resp.statusText);
                     }
-                    $('#input').prop('disabled', false);
-                    $('#submit').prop('disabled', false);
+                    $('#alert').show();
                 }
             })
         });
     });
-
-
 </script>
 </body>
 </html>

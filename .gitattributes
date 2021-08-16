@@ -21,3 +21,4 @@
 *.bin binary
 *.ipynb binary
 *.h5 binary
+apps/netoloka/drivers/chromedriver binary
