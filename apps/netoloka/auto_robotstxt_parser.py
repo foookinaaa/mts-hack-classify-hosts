@@ -1,18 +1,23 @@
+import json
+import os
 from multiprocessing import cpu_count
 from multiprocessing import Pool
 
-import pandas as pd
 import requests
 from tqdm import tqdm
 
-RAW_DATASET = 'data/raw/train.csv'
-OUTPUT_DIR = 'data/out/'
+OUTPUT_DIR = os.path.join(os.path.dirname(__file__), 'data/out-robots/')
+DATASET = os.path.join(os.path.dirname(__file__), 'data/_NON_TECH_CANDIDATE.csv')
+
+import pandas as pd
 
 
-def validate_host(host):
+def fetch_robots_txt(host):
+    host = 'http://' + host + '/robots.txt'
+
     try:
         r = requests.get(
-            'http://' + host,
+            host,
             headers={
                 'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.131 '
                               'Safari/537.36',
@@ -26,35 +31,39 @@ def validate_host(host):
         )
 
         return {
+            'ok': r.ok,
             'host': host,
             'contentType': r.headers.get('Content-Type'),
             'statusCode': r.status_code,
             'headers': r.headers,
             'content': r.content,
             'current_url': r.url,
-            'history': [
-                           h.url
-                           for h in r.history
-                       ] + [r.url],
-            'ok': r.ok,
+            'history': json.dumps([
+                                      h.url
+                                      for h in r.history
+                                  ] + [r.url]),
         }
     except:
         return {
+            'ok': False,
             'host': host,
-            'ok': False
+            'contentType': '',
+            'statusCode': '',
+            'headers': '',
+            'content': '',
+            'current_url': '',
+            'history': '',
         }
 
 
 def main():
-    df = pd.read_csv(RAW_DATASET)
-    df = df[~df['is_tech']].reset_index(drop=True)
-    hosts = df['host'].tolist()
+    hosts = pd.read_csv(DATASET)['host'].tolist()
 
     with Pool(processes=cpu_count()) as p:
         with tqdm(total=len(hosts)) as pbar:
-            for i, ret in enumerate(p.imap_unordered(validate_host, hosts)):
+            for i, ret in enumerate(p.imap_unordered(fetch_robots_txt, hosts)):
                 pbar.update()
-                pd.Series(ret).to_csv(OUTPUT_DIR + f'{i}.csv', index=False)
+                pd.Series(ret).to_csv(os.path.join(OUTPUT_DIR, f'{i}.csv'), index=False)
 
 
 if __name__ == '__main__':
