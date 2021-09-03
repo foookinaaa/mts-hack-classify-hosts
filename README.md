@@ -22,7 +22,7 @@ demo: https://clf-hosts-21.herokuapp.com/
 'ngram_max': 'Максимальный вес n-граммы',  
 'ngram_min': 'Минимальный вес n-граммы',  
 'digits_count': 'Число цифр в хосте',  
-'users_start' : 'Начало с www. или с m.'}  
+'users_start' : 'Начало с "www." или с "m."'}  
 ### Модель 
 CatBoostClassifier(random_state=0, verbose=0, max_depth=3, n_estimators=5)  
 ### Валидация
