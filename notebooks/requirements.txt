@@ -4,7 +4,7 @@ attrs==21.2.0
 backcall==0.2.0
 bleach==4.0.0
 catboost==0.26.1
-certifi==2021.5.30
+certifi==2023.7.22
 cffi==1.14.6
 charset-normalizer==2.0.4
 cloudpickle==1.6.0
