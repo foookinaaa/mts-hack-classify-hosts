@@ -1,6 +1,6 @@
 certifi==2023.7.22
 charset-normalizer==2.0.4
-idna==3.2
+idna==3.7
 numpy==1.21.0
 pandas==1.1.5
 pkg-resources==0.0.0
