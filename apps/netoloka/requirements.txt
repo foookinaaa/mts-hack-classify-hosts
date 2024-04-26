@@ -10,5 +10,5 @@ requests==2.26.0
 selenium==3.141.0
 six==1.16.0
 tqdm==4.62.0
-urllib3==1.26.6
+urllib3==1.26.18
 json-tricks
